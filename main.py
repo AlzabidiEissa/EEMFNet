@@ -184,9 +184,11 @@ def run(cfg):
             file_list_train = [os.path.join(cfg.DATASET.datadir, target, 'train/good', img) for img in selected_images]
 
         else:
-            file_list_train = glob(os.path.join(cfg.DATASET.datadir, target, r'train\*\*')) 
+            # file_list_train = glob(os.path.join(cfg.DATASET.datadir, target, r'train\*\*')) 
+            file_list_train = glob(os.path.join(cfg.DATASET.datadir, target, 'train/*/*')) 
         
-        file_list_test = glob(os.path.join(cfg.DATASET.datadir, target, r'test\*\*'))
+        # file_list_test = glob(os.path.join(cfg.DATASET.datadir, target, r'test\*\*'))
+        file_list_test = glob(os.path.join(cfg.DATASET.datadir, target, 'test/*/*'))
 
         # wandb
         if cfg.TRAIN.use_wandb:
