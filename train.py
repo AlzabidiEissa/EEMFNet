@@ -61,7 +61,8 @@ def dice_loss(pred, target, smooth = 1.):
 def training(model, trainloader, validloader, criterion, optimizer, scheduler, num_training_steps: int = 1000, loss_weights: List[float] = [0.6, 0.4],
              log_interval: int = 1, eval_interval: int = 1, savedir: str = None, use_wandb: bool = False, use_tpu: bool = False,
              device: str ='cpu',model_size: str = None) -> dict:
- 
+
+
 
     impressions = np.array([0, 0, 0, 0, 0, 0])
 
@@ -81,6 +82,15 @@ def training(model, trainloader, validloader, criterion, optimizer, scheduler, n
     model.train()
 
     # set optimizer
+    if use_tpu:
+        import torch_xla
+        import torch_xla.core.xla_model as xm
+
+        # Convert dataloaders to TPU-compatible loaders
+        import torch_xla.distributed.parallel_loader as pl
+        trainloader = pl.ParallelLoader(trainloader, [device]).per_device_loader(device)
+        validloader = pl.ParallelLoader(validloader, [device]).per_device_loader(device)
+
     optimizer.zero_grad()
 
     # training
@@ -191,8 +201,13 @@ def training(model, trainloader, validloader, criterion, optimizer, scheduler, n
 
             if (step+1) % accumulation_steps == 0 or (step + 1) == len(trainloader):
                     # update weight
-                    optimizer.step()
-                    optimizer.zero_grad()
+
+                    if use_tpu:
+                        xm.optimizer_step(optimizer)
+                        optimizer.zero_grad()
+                    else:
+                        optimizer.step()
+                        optimizer.zero_grad()
                     
                     _logger.warning('Epoch[{:>4d}/{}] '
                         'Step:{}, '
@@ -212,9 +227,6 @@ def training(model, trainloader, validloader, criterion, optimizer, scheduler, n
                         optimizer.param_groups[0]['lr'],
                         batch_time_m.avg,
                         data_time_m.avg))
-            
-            # optimizer.step()
-            # optimizer.zero_grad()
 
             train_loss += loss.item()
 
@@ -259,9 +271,6 @@ def training(model, trainloader, validloader, criterion, optimizer, scheduler, n
             #             batch_time_m.avg,
             #             data_time_m.avg))
             
-
-            # del inputs, masks, targets, maskmodes, outputs, l1_loss, focal_loss, loss
-            # torch.cuda.empty_cache()
 
         train_loss /= len(trainloader)
         # Loss.append(loss.item())
@@ -417,7 +426,7 @@ def evaluate(model, dataloader, device: str = 'cpu'):
 
             inputs, masks, targets = inputs.to(device), masks.to(device), targets.to(device)
 
-            torch.cuda.synchronize()
+            # torch.cuda.synchronize()
             start_t = time.time()
 
             # predict
@@ -476,19 +485,17 @@ def evaluate(model, dataloader, device: str = 'cpu'):
 
             anomaly_score.extend(anomaly_score_i.cpu().tolist())
             anomaly_map.extend(outputs[:,1,:].cpu().numpy())
+            # anomaly_map.extend(outputs[:,1,:].detach().cpu())
+
             # anomaly_map.extend(outputs.squeeze(1).cpu().numpy())
             # anomaly_map.extend(outputs[:,1,:].cpu().detach().numpy())
             
-            torch.cuda.synchronize()
+            # torch.cuda.synchronize()
             end_t = time.time() 
             t_per_imge += end_t - start_t
 
         inference_speed = t_per_imge / len(dataloader)
         print('inference speed:', inference_speed, 's')
-
-    # del inputs, masks, targets, outputs
-    # torch.cuda.empty_cache()
-
 
     # metrics
     image_masks = np.array(image_masks)
