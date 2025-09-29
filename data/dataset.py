@@ -355,29 +355,50 @@ class EEMFNetDataset(Dataset):
         return img, mask, target, maskmode
         
          
+    # def rand_augment(self):
+    #     augmenters = [
+    #         iaa.GammaContrast((0.5,2.0),per_channel=True),
+    #         iaa.MultiplyAndAddToBrightness(mul=(0.8,1.2),add=(-30,30)),
+    #         iaa.pillike.EnhanceSharpness(),
+    #         iaa.AddToHueAndSaturation((-50,50),per_channel=True),
+    #         iaa.Solarize(0.5, threshold=(32,128)),
+    #         iaa.Posterize(),
+    #         iaa.Invert(),
+    #         iaa.pillike.Autocontrast(),
+    #         iaa.pillike.Equalize(),
+    #         iaa.Affine(rotate=(-45, 45))
+    #     ]
+
+    #     aug_idx = np.random.choice(np.arange(len(augmenters)), 3, replace=False)
+    #     aug = iaa.Sequential([
+    #         augmenters[aug_idx[0]],
+    #         augmenters[aug_idx[1]],
+    #         augmenters[aug_idx[2]]
+    #     ])
+        
+    #     return aug
+
     def rand_augment(self):
         augmenters = [
-            iaa.GammaContrast((0.5,2.0),per_channel=True),
-            iaa.MultiplyAndAddToBrightness(mul=(0.8,1.2),add=(-30,30)),
-            iaa.pillike.EnhanceSharpness(),
-            iaa.AddToHueAndSaturation((-50,50),per_channel=True),
-            iaa.Solarize(0.5, threshold=(32,128)),
-            iaa.Posterize(),
-            iaa.Invert(),
-            iaa.pillike.Autocontrast(),
-            iaa.pillike.Equalize(),
-            iaa.Affine(rotate=(-45, 45))
-        ]
-
+            A.RandomGamma(gamma_limit=(50, 200), p=1),  # GammaContrast
+            A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.0, p=1),  #  MultiplyAndAddToBrightness
+            A.Sharpen(p=1),  # EnhanceSharpness
+            A.HueSaturationValue(hue_shift_limit=50, sat_shift_limit=50, val_shift_limit=0, p=1),  # AddToHueAndSaturation
+            A.Solarize(threshold=(32,128), p=1),  # Solarize
+            A.Posterize(num_bits=4, p=1),  # Posterize
+            A.InvertImg(p=1),  # Invert
+            A.AutoContrast(p=1),  # Autocontrast
+            A.Equalize(p=1),  # Equalize
+            A.Rotate(limit=45, p=1)  # Affine rotation
+        ] 
+        
         aug_idx = np.random.choice(np.arange(len(augmenters)), 3, replace=False)
-        aug = iaa.Sequential([
-            augmenters[aug_idx[0]],
-            augmenters[aug_idx[1]],
-            augmenters[aug_idx[2]]
-        ])
+        chosen = [augmenters[i] for i in aug_idx]
+        aug = A.Compose(chosen)
         
         return aug
 
+    
     def generate_form_mask (self):
         max_anomaly_regions = 3    # possible max number of anomaly regions
         parts = np.random.randint(1, max_anomaly_regions+1)
@@ -542,8 +563,14 @@ class EEMFNetDataset(Dataset):
         
         
         # apply affine transform
-        rot = iaa.Affine(rotate=(-90, 90))
-        perlin_noise = rot(image=perlin_noise)
+        # rot = iaa.Affine(rotate=(-90, 90))
+        # perlin_noise = rot(image=perlin_noise)
+
+
+        transform = A.Compose([
+            A.Rotate(limit=(-90, 90), p=1.0)])
+        augmented = transform(image=perlin_noise)
+        perlin_noise = augmented["image"]
         
         # make a mask by applying threshold
         mask_noise = np.where(
