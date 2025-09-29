@@ -1,3 +1,5 @@
+
+
 import wandb
 import logging
 import os
@@ -75,13 +77,17 @@ def outlier_removal(data_path, feature_extractor_name):
     return selected_images
 
 def run(cfg):
-
+    
     # setting seed and device
     # setup_default_logging()
     torch_seed(cfg.SEED)
-
-    # device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    device = cfg.TRAIN.device
+    
+    if cfg.TRAIN.use_tpu:
+        import torch_xla
+        import torch_xla.core.xla_model as xm
+        device = xm.xla_device()
+    else:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     _logger.info('Device: {}'.format(device))
 
