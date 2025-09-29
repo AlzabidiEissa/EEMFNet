@@ -337,6 +337,7 @@ def run(cfg):
             savedir            = savedir,
             device             = device,
             use_wandb          = cfg.TRAIN.use_wandb,
+            use_tpu            = cfg.TRAIN.use_tpu,
             model_size         = model_size)
 
 
