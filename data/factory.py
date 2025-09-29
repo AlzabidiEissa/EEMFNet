@@ -97,7 +97,9 @@ def create_dataloader(dataset, train: bool, batch_size: int = 16, num_workers: i
         dataset,
         shuffle     = train,
         batch_size  = batch_size,
+        drop_last     = train,
         # num_workers = num_workers
+        
     )
     
     if use_tpu:
