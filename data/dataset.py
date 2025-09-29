@@ -481,9 +481,9 @@ class EEMFNetDataset(Dataset):
             
             idx1 = np.random.randint(len(self.f_list))
             file_path1 = self.f_list[idx1]
-            while 'self.target' in file_path1:
-                idx1 = np.random.randint(len(self.f_list))
-                file_path1 = self.f_list[idx1]
+            # while 'self.target' in file_path1:
+            #     idx1 = np.random.randint(len(self.f_list))
+            #     file_path1 = self.f_list[idx1]
             
             a_img = Image.open(file_path1).convert("RGB").resize(self.resize)
             a_img = np.array(a_img)
