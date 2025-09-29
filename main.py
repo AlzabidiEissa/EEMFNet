@@ -232,6 +232,7 @@ def run(cfg):
             dataset     = trainset,
             train       = True,
             batch_size  = cfg.DATALOADER.batch_size,
+            use_tpu     = cfg.TRAIN.use_tpu,
             num_workers = cfg.DATALOADER.num_workers
         )
         
@@ -239,6 +240,7 @@ def run(cfg):
             dataset     = testset,
             train       = False,
             batch_size  = cfg.DATALOADER.batch_size,
+            use_tpu     = cfg.TRAIN.use_tpu,
             num_workers = cfg.DATALOADER.num_workers
         )
 
