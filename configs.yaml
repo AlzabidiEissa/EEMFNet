@@ -27,6 +27,7 @@ MODEL:
   feature_extractor_name: resnet18
 
 TRAIN:
+  use_tpu: True #False
   device: cpu
   batch_size: 8
   num_training_steps: 1
