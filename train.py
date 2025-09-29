@@ -86,10 +86,10 @@ def training(model, trainloader, validloader, criterion, optimizer, scheduler, n
         import torch_xla
         import torch_xla.core.xla_model as xm
 
-        # Convert dataloaders to TPU-compatible loaders
-        import torch_xla.distributed.parallel_loader as pl
-        trainloader = pl.ParallelLoader(trainloader, [device]).per_device_loader(device)
-        validloader = pl.ParallelLoader(validloader, [device]).per_device_loader(device)
+        # # Convert dataloaders to TPU-compatible loaders
+        # import torch_xla.distributed.parallel_loader as pl
+        # trainloader = pl.ParallelLoader(trainloader, [device]).per_device_loader(device)
+        # validloader = pl.ParallelLoader(validloader, [device]).per_device_loader(device)
 
     optimizer.zero_grad()
 
