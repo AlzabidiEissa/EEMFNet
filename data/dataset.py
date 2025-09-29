@@ -386,7 +386,7 @@ class EEMFNetDataset(Dataset):
             A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.0, p=1),  #  MultiplyAndAddToBrightness
             A.Sharpen(p=1),  # EnhanceSharpness
             A.HueSaturationValue(hue_shift_limit=50, sat_shift_limit=50, val_shift_limit=0, p=1),  # AddToHueAndSaturation
-            A.Solarize(threshold=(32,128), p=1),  # Solarize
+            A.Solarize(p=1),  # Solarize
             A.Posterize(num_bits=4, p=1),  # Posterize
             A.InvertImg(p=1),  # Invert
             A.AutoContrast(p=1),  # Autocontrast
