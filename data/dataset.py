@@ -602,7 +602,7 @@ class EEMFNetDataset(Dataset):
         return texture_source_img
         
     def _structure_source(self, img: np.ndarray) -> np.ndarray:
-        structure_source_img = self.rand_augment()(image=img)
+        structure_source_img = self.rand_augment()(image=img)["image"]
         
         assert self.resize[0] % self.structure_grid_size == 0, 'structure should be devided by grid size accurately'
         grid_w = self.resize[1] // self.structure_grid_size
