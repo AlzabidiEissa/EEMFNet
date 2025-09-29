@@ -59,9 +59,9 @@ def dice_loss(pred, target, smooth = 1.):
     return loss.mean()
 
 def training(model, trainloader, validloader, criterion, optimizer, scheduler, num_training_steps: int = 1000, loss_weights: List[float] = [0.6, 0.4],
-             log_interval: int = 1, eval_interval: int = 1, savedir: str = None, use_wandb: bool = False, device: str ='cpu',model_size: str = None) -> dict:
+             log_interval: int = 1, eval_interval: int = 1, savedir: str = None, use_wandb: bool = False, use_tpu: bool = False,
+             device: str ='cpu',model_size: str = None) -> dict:
  
-    global cfg
 
     impressions = np.array([0, 0, 0, 0, 0, 0])
 
