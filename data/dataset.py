@@ -7,7 +7,7 @@ from einops import rearrange
 import torch
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
-import imgaug.augmenters as iaa
+# import imgaug.augmenters as iaa
 from math import *
 # from data import rand_perlin_2d_np
 from typing import List, Tuple
@@ -302,30 +302,42 @@ class EEMFNetDataset(Dataset):
             # p = np.random.uniform()
             p = 1
             if p < 0.5:
-                # rnd = np.random.randint(1,6)
-                rnd = np.random.randint(1,4)
 
-                if rnd == 1:
-                    # print('data augmentions: Rotate all images by 90')
-                    aug = iaa.Rot90(1)
-                    img = aug(image=img)
+                def rotate_with_rnd(img, rnd):
+                    mapping = {1: 1, 2: 3, 3: 2}  # نفس القيم اللي عندك
+                    k = mapping.get(rnd, 1)
+                    return np.ascontiguousarray(np.rot90(img, k))
+                img = rotate_with_rnd(img, rnd)
 
-                elif rnd == 2:
-                    # print('data augmentions: Rotate image by 270')
-                    aug = iaa.Rot90(2)
-                    img = aug(image=img)
+                ####################
+                # # rnd = np.random.randint(1,6)
+                # rnd = np.random.randint(1,4)
 
-                else:
-                    # print('data augmentions: Rotate image by 180')
-                    aug = iaa.Rot90(3)
-                    img = aug(image=img)
+                # if rnd == 1:
+                #     # print('data augmentions: Rotate all images by 90')
+                #     # transform = A.Compose([
+                #     # A.RandomRotate90(p=1.0) ])
+                #     # augmented = transform(image=img)
+                #     # img = augmented["image"]
+                #     aug = iaa.Rot90(1)
+                #     img = aug(image=img)
 
-                # elif rnd == 4:
-                #     # print('Horizontal Flip')
-                #     img = transforms.RandomHorizontalFlip(p=1)(img)
-                # elif rnd == 5:
-                #     # print('Vertical Flip')
-                #     img = transforms.RandomVerticalFlip(p=1)(img)
+                # elif rnd == 2:
+                #     # print('data augmentions: Rotate image by 270')
+                #     aug = iaa.Rot90(2)
+                #     img = aug(image=img)
+
+                # else:
+                #     # print('data augmentions: Rotate image by 180')
+                #     aug = iaa.Rot90(3)
+                #     img = aug(image=img)
+
+                # # elif rnd == 4:
+                # #     # print('Horizontal Flip')
+                # #     img = transforms.RandomHorizontalFlip(p=1)(img)
+                # # elif rnd == 5:
+                # #     # print('Vertical Flip')
+                # #     img = transforms.RandomVerticalFlip(p=1)(img)
 
             if self.anomaly_switch:
                 img, mask, maskmode = self.generate_anomaly(img=img, texture_img_list=self.texture_source_file_list)
