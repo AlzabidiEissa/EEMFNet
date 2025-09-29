@@ -33,7 +33,8 @@ class EEMFNetDataset(Dataset):
     ):
         
        
-        self.f_list = glob(os.path.join(r"F:\Oguz\EISSA\anomaly_generatin_datasets\images", r'*\*\*'))
+        # self.f_list = glob(os.path.join(r"F:\Oguz\EISSA\anomaly_generation_datasets\images", r'*\*\*'))
+        self.f_list = glob(os.path.join('/content/EEMFNet/datasets/anomaly_generation_datasets/images', '*/*/*')) 
 
         self.augmentors_for_real = [A.RandomRotate90(),
                         # A.Flip(),
@@ -80,7 +81,8 @@ class EEMFNetDataset(Dataset):
         # synthetic anomaly
         if self.is_train and not self.to_memory:
             # load texture image file list    
-            self.texture_source_file_list = glob(os.path.join(texture_source_dir,r'*\*')) if texture_source_dir else None
+            # self.texture_source_file_list = glob(os.path.join(texture_source_dir,r'*\*')) if texture_source_dir else None
+            self.texture_source_file_list = glob(os.path.join(texture_source_dir,'*/*')) if texture_source_dir else None
         
             # perlin noise
             self.perlin_scale = perlin_scale
