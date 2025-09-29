@@ -25,7 +25,6 @@ def create_dataset(
     texture_source_dir: str = None, structure_grid_size: str = 8,
     transparency_range: List[float] = [0.15, 1.],
     perlin_scale: int = 6, min_perlin_scale: int = 0, perlin_noise_threshold: float = 0.5,
-    # use_mask: bool = True, bg_threshold: float = 100, bg_reverse: bool = False
 ):
 
     dataset = EEMFNetDataset(
@@ -91,7 +90,7 @@ def create_dataset(
     return sub_dataset, dataset
 
 
-def create_dataloader(dataset, train: bool, batch_size: int = 16, num_workers: int = 1):
+def create_dataloader(dataset, train: bool, batch_size: int = 16, num_workers: int = 1, use_tpu=False):
     
     
     dataloader = DataLoader(
@@ -100,5 +99,12 @@ def create_dataloader(dataset, train: bool, batch_size: int = 16, num_workers: i
         batch_size  = batch_size,
         num_workers = num_workers
     )
+    
+    if use_tpu:
+        import torch_xla.core.xla_model as xm
+        import torch_xla.distributed.parallel_loader as pl
 
+        device = xm.xla_device()
+        dataloader = pl.ParallelLoader(dataloader, [device]).per_device_loader(device)
+        
     return dataloader
